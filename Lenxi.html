@@ -1,0 +1,184 @@
+<h1>import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
+
+public class LenxiBugWA extends JFrame {
+    
+    private JTextArea logArea;
+    private JTextArea numbersArea;
+    private JTextArea messageArea;
+    private JProgressBar progressBar;
+    private JLabel statusLabel;
+
+    public LenxiBugWA() {
+        setTitle("LENXI BUG WA v5.0");
+        setSize(1000, 680);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(true);
+        getContentPane().setBackground(new Color(10, 10, 20));
+
+        // Header
+        JPanel header = new JPanel();
+        header.setBackground(new Color(0, 180, 120));
+        header.setPreferredSize(new Dimension(1000, 80));
+        
+        JLabel title = new JLabel("LENXI BUG WA", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        title.setForeground(Color.WHITE);
+        header.add(title);
+
+        // Main Panel
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(new Color(10, 10, 20));
+
+        // Left Panel - Input
+        JPanel leftPanel = new JPanel(new GridLayout(3, 1, 0, 15));
+        leftPanel.setBackground(new Color(10, 10, 20));
+
+        // Nomor Target
+        JPanel numPanel = createInputPanel("📱 NOMOR TARGET (628xx)", 
+            numbersArea = new JTextArea(8, 30));
+        numbersArea.setText("6281234567890\n6289876543210\n628555777888");
+
+        // Pesan
+        JPanel msgPanel = createInputPanel("💬 PESAN BUG", 
+            messageArea = new JTextArea(8, 30));
+        messageArea.setText("🔴 PEMBERITAHUAN KEAMANAN\n\nAkun WhatsApp Anda terdeteksi aktivitas mencurigakan.\nVerifikasi sekarang: https://lenxi-bug.com/verify");
+
+        leftPanel.add(numPanel);
+        leftPanel.add(msgPanel);
+
+        // Right Panel - Log
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBackground(new Color(10, 10, 20));
+
+        JLabel logTitle = new JLabel("🔴 LIVE ATTACK LOG");
+        logTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        logTitle.setForeground(new Color(0, 255, 150));
+        
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        logArea.setBackground(new Color(0, 0, 0));
+        logArea.setForeground(new Color(0, 255, 150));
+        logArea.setFont(new Font("Consolas", Font.PLAIN, 15));
+
+        JScrollPane scrollLog = new JScrollPane(logArea);
+        scrollLog.setBorder(BorderFactory.createLineBorder(new Color(0, 255, 150), 2));
+
+        rightPanel.add(logTitle, BorderLayout.NORTH);
+        rightPanel.add(scrollLog, BorderLayout.CENTER);
+
+        // Bottom Control
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        controlPanel.setBackground(new Color(10, 10, 20));
+
+        JButton sendBtn = createStyledButton("🚀 KIRIM SEKARANG", new Color(0, 200, 100));
+        JButton bulkBtn = createStyledButton("💥 BULK ATTACK", new Color(220, 20, 60));
+        JButton clearBtn = createStyledButton("🗑 CLEAR LOG", new Color(80, 80, 80));
+
+        sendBtn.addActionListener(e -> startSending(false));
+        bulkBtn.addActionListener(e -> startSending(true));
+        clearBtn.addActionListener(e -> logArea.setText(""));
+
+        controlPanel.add(sendBtn);
+        controlPanel.add(bulkBtn);
+        controlPanel.add(clearBtn);
+
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        progressBar.setForeground(new Color(0, 255, 150));
+        progressBar.setBackground(Color.DARK_GRAY);
+
+        statusLabel = new JLabel("● Ready | 12 Gateway Connected", SwingConstants.CENTER);
+        statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        statusLabel.setForeground(new Color(0, 255, 150));
+
+        mainPanel.add(leftPanel, BorderLayout.WEST);
+        mainPanel.add(rightPanel, BorderLayout.CENTER);
+        mainPanel.add(controlPanel, BorderLayout.SOUTH);
+
+        setLayout(new BorderLayout());
+        add(header, BorderLayout.NORTH);
+        add(mainPanel, BorderLayout.CENTER);
+        add(progressBar, BorderLayout.PAGE_END);
+        add(statusLabel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createInputPanel(String title, JTextArea area) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBackground(new Color(10, 10, 20));
+        
+        JLabel lbl = new JLabel(title);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lbl.setForeground(new Color(0, 255, 200));
+        
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setBackground(new Color(20, 20, 40));
+        area.setForeground(Color.WHITE);
+        area.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        JScrollPane scroll = new JScrollPane(area);
+        panel.add(lbl, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JButton createStyledButton(String text, Color color) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setPreferredSize(new Dimension(180, 55));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    private void log(String message, Color color) {
+        logArea.append("[" + java.time.LocalTime.now().withNano(0) + "] " + message + "\n");
+        logArea.setCaretPosition(logArea.getDocument().getLength());
+    }
+
+    private void startSending(boolean isBulk) {
+        String[] numbers = numbersArea.getText().split("\n");
+        String message = messageArea.getText();
+        
+        if (numbers.length == 0 || message.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Isi nomor dan pesan!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        progressBar.setValue(0);
+        log(isBulk ? "💥 BULK ATTACK DIMULAI..." : "🚀 SINGLE SEND DIMULAI...", Color.YELLOW);
+
+        new Thread(() -> {
+            int total = isBulk ? 45 : numbers.length;
+            for (int i = 0; i < total; i++) {
+                try {
+                    Thread.sleep(180);
+                    String num = isBulk ? "628" + (100000000 + new Random().nextInt(900000000)) : numbers[i % numbers.length].trim();
+                    log("✅ Terkirim → " + num + " | Status: DELIVERED", new Color(0, 255, 100));
+                    
+                    int progress = (i + 1) * 100 / total;
+                    progressBar.setValue(progress);
+                } catch (Exception ex) {}
+            }
+            log("🎯 SERANGAN SELESAI - Semua pesan terkirim!", new Color(255, 215, 0));
+            statusLabel.setText("● Attack Completed Successfully");
+        }).start();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {}
+            
+            new LenxiBugWA().setVisible(true);
+        });
+    }
+}<h1>
